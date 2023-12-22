@@ -17,28 +17,58 @@ const { height, width } = Dimensions.get("window");
 const setHeight = (h) => (height / 100) * h;
 const setWidth = (w) => (width / 100) * w;
 
-const MovieScreen = async ({ route, navigation }) => {
+const MovieScreen = ({ route, navigation }) => {
   const { movieId } = route.params;
-  const [movie, setMovie] = useState({});
+  const [movie, setMovie] = useState(null);
   const [isCastSelected, setIsCastSelected] = useState(true);
+  const [bookmark, setBookmark] = useState(false);
+
   const navigateToMovieScreen = (movieId) => {
     navigation.replace("movie", { movieId });
   };
-  const bookklik = async (movieId) => {
+
+  const checkIsBookmarked = async (movieId) => {
     const bookmark = await AsyncStorage.getItem("@bookmarklist");
     const array = JSON.parse(bookmark);
-    if (movieId == array) {
-      useState(true);
+    if (array && array.includes(movieId)) {
+      setBookmark(true);
     } else {
-      useState(false);
+      setBookmark(false);
     }
   };
+
   const onBookmarkClick = async (movieId) => {
-    await AsyncStorage.setItem("@bookmarklist", JSON.stringify(movieId));
+    const bookmark = await AsyncStorage.getItem("@bookmarklist");
+    if (bookmark) {
+      let decoded = JSON.parse(bookmark);
+      decoded.push(movieId);
+      console.log("Data after parsing 2: ", decoded);
+      await AsyncStorage.setItem("@bookmarklist", JSON.stringify(decoded));
+    } else {
+      await AsyncStorage.setItem("@bookmarklist", JSON.stringify([movieId]));
+    }
+    setBookmark(true);
+  };
+  const onUnBookmarkClick = async (movieId) => {
+    const bookmark = await AsyncStorage.getItem("@bookmarklist");
+    if (bookmark) {
+      let decoded = JSON.parse(bookmark);
+      if (Array.isArray(decoded)) {
+        const index = decoded.indexOf(movieId);
+        if (index !== -1) {
+          decoded.splice(index, 1);
+          await AsyncStorage.setItem("@bookmarklist", JSON.stringify(decoded));
+          setBookmark(false);
+        }
+      }
+    }
   };
 
   useEffect(() => {
-    getMovieById(movieId, `${AR.VIDEOS},${AR.CREDITS},${AR.RECOMMENDATIONS},${AR.SIMILAR}`).then((response) => setMovie(response?.data));
+    checkIsBookmarked(movieId);
+    getMovieById(movieId, `${AR.VIDEOS},${AR.CREDITS},${AR.RECOMMENDATIONS},${AR.SIMILAR}`).then((response) => {
+      setMovie(response?.data);
+    });
   }, []);
 
   return (
@@ -68,10 +98,14 @@ const MovieScreen = async ({ route, navigation }) => {
         <View style={styles.row}>
           <TouchableNativeFeedback
             onPress={() => {
-              onBookmarkClick(movieId);
+              if (bookmark) {
+                onUnBookmarkClick(movieId);
+              } else {
+                onBookmarkClick(movieId);
+              }
             }}
           >
-            <Ionicons name={bookklik ? "bookmark" : "bookmark-outline"} size={22} color={bookklik ? COLORS.LIGHT_GRAY : COLORS.BLACK} />
+            <Ionicons name={bookmark ? "bookmark" : "bookmark-outline"} size={22} color={bookmark ? COLORS.LIGHT_GRAY : COLORS.BLACK} />
           </TouchableNativeFeedback>
           <Ionicons name="heart" size={22} color={COLORS.HEART} />
           <Text style={styles.ratingText}>{movie?.vote_average}</Text>
@@ -98,7 +132,7 @@ const MovieScreen = async ({ route, navigation }) => {
         <FlatList
           style={{ marginVertical: 5 }}
           data={isCastSelected ? movie?.credits?.cast : movie?.credits?.crew}
-          keyExtractor={(item) => item?.credit_id}
+          keyExtractor={(item) => `${item?.credit_id}${Math.random()}`}
           horizontal
           showsHorizontalScrollIndicator={false}
           ListHeaderComponent={() => <ItemSeparator width={20} />}
@@ -110,7 +144,7 @@ const MovieScreen = async ({ route, navigation }) => {
       <Text style={styles.extraListTitle}>Recommended Movie</Text>
       <FlatList
         data={movie?.recommendations?.results}
-        keyExtractor={(item) => item?.id?.toString()}
+        keyExtractor={(item) => `${item?.id.toString()}${Math.random()}`}
         horizontal
         showsHorizontalScrollIndicator={false}
         ListHeaderComponent={() => <ItemSeparator width={20} />}
@@ -123,7 +157,7 @@ const MovieScreen = async ({ route, navigation }) => {
       <Text style={styles.extraListTitle}>Similar</Text>
       <FlatList
         data={movie?.similar?.results}
-        keyExtractor={(item) => item?.id?.toString()}
+        keyExtractor={(item) => `${item?.id.toString()}${Math.random()}`}
         horizontal
         showsHorizontalScrollIndicator={false}
         ListHeaderComponent={() => <ItemSeparator width={20} />}

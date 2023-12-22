@@ -17,7 +17,6 @@ const HomeScreen = ({ navigation }) => {
   const [Movies, setMOvies] = useState({});
   const [upcomingMovies, setUpcomingMovies] = useState({});
   const [genres, setGenres] = useState([{ name: "All" }]);
-  
 
   useEffect(() => {
     getNowplayingMovies().then((movieResponse) => setNowPlayingMovies(movieResponse.data));
@@ -27,7 +26,6 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   const onGenreClicked = (name, genreId) => {
-    
     setActiveGenre(name);
     getMovies(genreId).then((movieResponse) => {
       console.log("res :", movieResponse.data);
@@ -46,7 +44,7 @@ const HomeScreen = ({ navigation }) => {
           data={genres}
           horizontal
           showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id?.toString() + item.name}
+          keyExtractor={(item) => item.id?.toString() + item.name + Math.random().toString()}
           ItemSeparatorComponent={() => <ItemSeparator width={20} />}
           ListHeaderComponent={() => <ItemSeparator width={20} />}
           ListFooterComponent={() => <ItemSeparator width={20} />}
@@ -58,7 +56,7 @@ const HomeScreen = ({ navigation }) => {
           data={Movies.results}
           horizontal
           showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id.toString() + Math.random().toString()}
           ItemSeparatorComponent={() => <ItemSeparator width={20} />}
           ListHeaderComponent={() => <ItemSeparator width={20} />}
           ListFooterComponent={() => <ItemSeparator width={20} />}
@@ -70,7 +68,9 @@ const HomeScreen = ({ navigation }) => {
               poster={item.poster_path}
               heartLess={false}
               releaseDate={item.release_date}
-              onPress={() => navigation.navigate("movie", { movieId: item.id })}
+              onPress={() => {
+                navigation.navigate("movie", { movieId: item.id });
+              }}
             />
           )}
         />
