@@ -14,3 +14,7 @@ Aplikasi Movie List yang memberikan rekomendasi film dan informasi film.
 
 - Link Video Demo
   https://youtu.be/ZWursjhOj7Q
+
+
+- Link Gdrive Pitch Deck dan Video
+  https://drive.google.com/drive/folders/1I9AfeX979pCY5hLZdrEcK2j1C1LE71iO?usp=sharing
