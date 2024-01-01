@@ -13,4 +13,4 @@ Aplikasi Movie List yang memberikan rekomendasi film dan informasi film.
   https://www.canva.com/design/DAF39vEUwi8/Yd8VHD8cLeRQpO3DwlMKZg/edit
 
 - Link Video Demo
-  
+  https://youtu.be/ZWursjhOj7Q
